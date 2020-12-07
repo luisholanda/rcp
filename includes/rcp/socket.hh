@@ -37,7 +37,7 @@ protected:
   friend class connection;
 private:
   std::unique_ptr<packet::buffer_t> AcquireBuffer() noexcept;
-  void ReleaseBuffer(std::unique_ptr<packet::buffer_t> buff) noexcept;
+  inline void ReleaseBuffer(std::unique_ptr<packet::buffer_t> buff) noexcept;
 
   int mUdpSocket;
   std::vector<std::unique_ptr<packet::buffer_t>> mBuffers;

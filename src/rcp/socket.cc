@@ -1,8 +1,36 @@
+#include "rcp/connection.hh"
+#include "rcp/listener.hh"
 #include "rcp/packet.hh"
 #include "rcp/socket.hh"
 #include <cerrno>
 
 using namespace rcp;
+
+listener socket::Bind(in_port_t port) {
+  sockaddr_in anyaddr;
+  std::memset(&anyaddr, 0, sizeof(anyaddr));
+
+  anyaddr.sin_family = AF_INET;
+  anyaddr.sin_addr.s_addr = INADDR_ANY;
+  anyaddr.sin_port = port;
+
+  if (bind(mUdpSocket,
+           reinterpret_cast<const sockaddr*>(&anyaddr),
+           sizeof(anyaddr)) < 0)
+  {
+    // TODO: Someday we should handle these errno with custom exceptions.
+    throw errno;
+  }
+
+  return listener(*this, port);
+}
+
+connection socket::Connect(in_addr_t ip, in_port_t port) {
+  sockaddr_in peerAddr;
+  std::memset(&peerAddr, 0, sizeof(peerAddr));
+
+  return connection(*this, peerAddr);
+}
 
 int socket::Recv(packet& packet, sockaddr& peer) noexcept {
   auto buff = AcquireBuffer();
@@ -37,6 +65,6 @@ std::unique_ptr<packet::buffer_t> socket::AcquireBuffer() noexcept {
   }
 }
 
-void socket::ReleaseBuffer(std::unique_ptr<packet::buffer_t> buffer) noexcept {
+inline void socket::ReleaseBuffer(std::unique_ptr<packet::buffer_t> buffer) noexcept {
   mBuffers.push_back(std::move(buffer));
 }
