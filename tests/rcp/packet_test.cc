@@ -59,15 +59,29 @@ TEST(PacketTests, packetFromBuffer) {
   (*buffer)[1] = 0;
   (*buffer)[2] = 0;
   (*buffer)[3] = 0;
-  (*buffer)[4] = 0xFF;
-  (*buffer)[5] = 0xFF;
+  (*buffer)[8] = 0xFF;
+  (*buffer)[9] = 0xFF;
 
-  auto packet = rcp::packet::fromBuffer(*buffer, 10);
+  std::uint16_t correctSeqNum;
+  std::memcpy(&correctSeqNum, *buffer, 2);
+
+  auto packet = rcp::packet::fromBuffer(std::move(buffer), 10);
   EXPECT_TRUE(packet != nullptr);
 
   EXPECT_EQ(packet->Length(), 2);
-  EXPECT_EQ(packet->SequenceNumber(), 0xF00);
+  EXPECT_EQ(packet->SequenceNumber(), correctSeqNum);
   EXPECT_EQ(packet->AcknowledgmentNumber(), 0);
+  EXPECT_EQ(packet->Payload()[0], 0xFF);
+  EXPECT_EQ(packet->Payload()[1], 0xFF);
+
+  buffer = rcp::packet::makeBuffer();
+
+  (*buffer)[0] = 0xF;
+  (*buffer)[1] = 0;
+  (*buffer)[2] = 0;
+  (*buffer)[3] = 0;
+  (*buffer)[8] = 0xFF;
+  (*buffer)[9] = 0xFF;
 
   packet->SetLength(0);
   packet->SetSequenceNumber(0);
@@ -76,6 +90,6 @@ TEST(PacketTests, packetFromBuffer) {
   packet->FromBuffer(*buffer, 10);
 
   EXPECT_EQ(packet->Length(), 2);
-  EXPECT_EQ(packet->SequenceNumber(), 0xF00);
+  EXPECT_EQ(packet->SequenceNumber(), correctSeqNum);
   EXPECT_EQ(packet->AcknowledgmentNumber(), 0);
 }

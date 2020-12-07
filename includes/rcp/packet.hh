@@ -192,7 +192,7 @@ public:
    * @returns the RCP packet if the contents of the buffer is valid.
    */
   static std::unique_ptr<packet>
-  fromBuffer(const buffer_t& buffer, std::size_t n) noexcept;
+  fromBuffer(std::unique_ptr<buffer_t> buffer, std::size_t n) noexcept;
 
   /// Make a buffer big enough to hold ONE RCP packet.
   static std::unique_ptr<buffer_t> makeBuffer() noexcept;
