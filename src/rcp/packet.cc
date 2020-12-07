@@ -26,6 +26,13 @@ void packet::SetLength(std::uint16_t length) {
   }
 }
 
+void packet::Clear() noexcept {
+  mLength = 0;
+  mFlags = 0;
+  mSeqNum = 0;
+  mAckNum = 0;
+}
+
 std::unique_ptr<packet> packet::make() noexcept {
   return std::make_unique<packet>();
 }

@@ -8,6 +8,8 @@ namespace rcp {
 /// Type used to represent bytes in the RCP API.
 using byte = std::uint8_t;
 
+class socket;
+
 /**
  * A RCP packet.
  *
@@ -164,6 +166,9 @@ public:
    */
   void SetLength(std::uint16_t length);
 
+  /// Clears this packet.
+  void Clear() noexcept;
+
   /**
    * Construct an empty packet.
    *
@@ -202,16 +207,6 @@ public:
    * @param n is the valid buffer length.
    */
   void FromBuffer(const buffer_t& buffer, std::size_t n) noexcept;
-
-  packet()
-    : mSeqNum(0)
-    , mAckNum(0)
-    , mLength(0)
-    , mFlags(0)
-  {}
-
-  virtual ~packet() = default;
-
 protected:
   struct flags {
     static constexpr unsigned int FIN = 1 << 0;
@@ -233,6 +228,7 @@ protected:
     mLength = 0;
   }
 
+  friend class socket;
 private:
   std::uint16_t mSeqNum;
   std::uint16_t mAckNum;
